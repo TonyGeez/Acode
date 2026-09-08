@@ -9,6 +9,14 @@ const GAP = 4;
 const SYNTHETIC_CLICK_WINDOW = 700;
 
 /**
+ * How far the pointer must travel before a long press counts as a drag
+ * instead of a tab context menu request. Matches the slop used in
+ * handlers/editorFileTab.js so the sidebar long-press gesture behaves
+ * consistently with the tab-bar drag gesture.
+ */
+const DRAG_MENU_SLOP = 8;
+
+/**
  * Open the context menu for a file tab.
  *
  * Actions are executed through `acode.exec`, so they use the same commands
@@ -35,10 +43,16 @@ export default function openTabContextMenu(file) {
 	 * Touch gestures that open a context menu can be followed by a synthetic
 	 * click (detail === 0). Ignore those so releasing the finger does not
 	 * accidentally activate a menu item underneath it.
+	 *
+	 * Keyboard-activated clicks dispatched by the Contextmenu component are
+	 * also `detail === 0` (since they're synthetic MouseEvents), but they're
+	 * marked with `keyboardActivated` so they're never mistaken for a
+	 * touch-release ghost click and suppressed here.
 	 * @param {MouseEvent} event
 	 */
 	const suppressSyntheticClick = (event) => {
 		if (Date.now() > guardUntil) return;
+		if (event.keyboardActivated) return;
 		if (event.detail !== 0) return;
 		if (!menu.contains(event.target)) return;
 		event.preventDefault();
@@ -54,7 +68,9 @@ export default function openTabContextMenu(file) {
 	menu.onhide = removeSuppressor;
 
 	menu.addEventListener("click", (event) => {
-		if (event.detail === 0) return; // synthetic click, ignore
+		// A synthetic click with detail === 0 that isn't marked as a real
+		// keyboard activation is a touch-release ghost click; ignore it.
+		if (event.detail === 0 && !event.keyboardActivated) return;
 		const $target = event.target;
 		const action = $target?.getAttribute?.("action");
 		if (!action) return;
@@ -74,6 +90,11 @@ export default function openTabContextMenu(file) {
  * file list). Opening while the finger is still down would let the release
  * hit the menu, so the menu is opened when the pointer is lifted instead.
  *
+ * A small movement threshold (DRAG_MENU_SLOP) is allowed before the gesture
+ * is treated as a drag/scroll rather than a menu request, matching the
+ * tab-bar drag gesture in handlers/editorFileTab.js. Without this, ordinary
+ * finger drift during a long press would cancel the menu before touchend.
+ *
  * @param {object} file The `EditorFile` whose tab was long pressed / right clicked
  * @param {MouseEvent} event The contextmenu event
  */
@@ -81,6 +102,8 @@ export function openTabContextMenuOnRelease(file, event) {
 	if (!file || !file.tab || !file.tab.isConnected) return;
 	event.preventDefault?.();
 	event.stopPropagation?.();
+
+	const { clientX: originX, clientY: originY } = getEventClientPos(event);
 
 	let opened = false;
 	let cancelled = false;
@@ -92,9 +115,18 @@ export function openTabContextMenuOnRelease(file, event) {
 		openTabContextMenu(file);
 	};
 
-	const onPointerMove = () => {
-		// Moving after the long press means the user intends to scroll or drag,
-		// not to open a menu.
+	const onPointerMove = (moveEvent) => {
+		const { clientX, clientY } = getEventClientPos(moveEvent);
+		if (
+			Math.abs(clientX - originX) <= DRAG_MENU_SLOP &&
+			Math.abs(clientY - originY) <= DRAG_MENU_SLOP
+		) {
+			// Still within the slop threshold; treat as a stationary long
+			// press rather than a drag/scroll attempt.
+			return;
+		}
+		// Moved far enough after the long press means the user intends to
+		// scroll or drag, not to open a menu.
 		cancelled = true;
 		cleanup();
 	};
@@ -117,6 +149,19 @@ export function openTabContextMenuOnRelease(file, event) {
 	document.addEventListener("touchcancel", onCancel, true);
 	document.addEventListener("mouseup", open, true);
 	document.addEventListener("mouseleave", onCancel, true);
+}
+
+/**
+ * Extracts the client X/Y position from a mouse or touch event.
+ * @param {MouseEvent|TouchEvent} e
+ * @returns {{clientX: number, clientY: number}}
+ */
+function getEventClientPos(e) {
+	const touch = e.touches?.[0] || e.changedTouches?.[0];
+	if (touch) {
+		return { clientX: touch.clientX, clientY: touch.clientY };
+	}
+	return { clientX: e.clientX ?? 0, clientY: e.clientY ?? 0 };
 }
 
 function getMenuItemsHtml() {
