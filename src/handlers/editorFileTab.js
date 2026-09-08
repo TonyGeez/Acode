@@ -1,8 +1,8 @@
 import { focusEditorIfEditable } from "cm/editorReadOnly";
+import openTabContextMenu from "handlers/tabContextMenu";
 import config from "lib/config";
 import settings from "lib/settings";
 import { animate } from "motion";
-import openTabContextMenu from "handlers/tabContextMenu";
 
 const opts = { passive: false };
 
