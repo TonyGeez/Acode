@@ -134,6 +134,22 @@ export default {
 	async "close-all-tabs"() {
 		await closeTabs(editorManager.files);
 	},
+	/**
+	 * Close every tab shown in the same tab group (pane tab bar) as the
+	 * reference file. In the sidebar layout all tabs belong to one visible
+	 * group, so all open files are closed.
+	 */
+	async "close-tabs-in-group"(referenceFile) {
+		const file = resolveReferenceFile(referenceFile);
+		const { openFileListPos } = appSettings.value;
+		const isPaneTabLayout =
+			openFileListPos === appSettings.OPEN_FILE_LIST_POS_HEADER ||
+			openFileListPos === appSettings.OPEN_FILE_LIST_POS_BOTTOM;
+		const files = isPaneTabLayout
+			? editorManager.getPaneFiles?.(file) || editorManager.files
+			: editorManager.files;
+		await closeTabs(files);
+	},
 	async "close-tabs-to-left"(referenceFile) {
 		await closeTabs(
 			getTabsRelativeToFile("left", referenceFile),
@@ -165,6 +181,14 @@ export default {
 	},
 	"close-current-tab"() {
 		editorManager.activeFile?.remove();
+	},
+	/**
+	 * Close the tab of the given file (which may not be the active file).
+	 */
+	"close-tab"(referenceFile) {
+		const file = resolveReferenceFile(referenceFile);
+		if (!file) return false;
+		return file.remove();
 	},
 	"new-pane"() {
 		return editorManager.createPane?.();

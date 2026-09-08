@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "fs": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/tony/mcp-tools/filesystem/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}

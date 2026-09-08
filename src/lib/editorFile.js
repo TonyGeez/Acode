@@ -14,6 +14,7 @@ import toast from "components/toast";
 import confirm from "dialogs/confirm";
 import DOMPurify from "dompurify";
 import startDrag from "handlers/editorFileTab";
+import { openTabContextMenuOnRelease } from "handlers/tabContextMenu";
 import actions from "handlers/quickTools";
 import tag from "html-tag-js";
 import mimeTypes from "mime-types";
@@ -736,9 +737,18 @@ export default class EditorFile {
 				openFileListPos === appSettings.OPEN_FILE_LIST_POS_HEADER ||
 				openFileListPos === appSettings.OPEN_FILE_LIST_POS_BOTTOM
 			) {
+				// In tab bar layouts a long press starts a drag; the tab context
+				// menu opens when the drag ends without moving (see editorFileTab).
 				this.#tab.oncontextmenu = startDrag;
 			} else {
-				this.#tab.oncontextmenu = null;
+				// Sidebar layout has no tab drag, so open the context menu when
+				// the long press / right click ends.
+				this.#tab.oncontextmenu = (event) => {
+					if (appSettings.value.vibrateOnTap) {
+						navigator.vibrate(config.VIBRATION_TIME);
+					}
+					openTabContextMenuOnRelease(this, event);
+				};
 			}
 		};
 
