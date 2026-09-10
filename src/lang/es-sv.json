@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "La reseña debe tener {max} caracteres o menos.",
 	"plugin-review:error-downvote-comment": "Dile al desarrollador qué podría mejorar.",
 	"plugin-review:error-empty": "Agrega un comentario o elige Me gusta.",
-	"plugin-review:unrated": "Sin calificar"
+	"plugin-review:unrated": "Sin calificar",
+	"sort by": "Sort by"
 }

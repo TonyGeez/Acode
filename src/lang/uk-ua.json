@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Відгук має містити не більше {max} символів.",
 	"plugin-review:error-downvote-comment": "Розкажіть розробнику, що можна покращити.",
 	"plugin-review:error-empty": "Додайте коментар або виберіть «Подобається».",
-	"plugin-review:unrated": "Без оцінки"
+	"plugin-review:unrated": "Без оцінки",
+	"sort by": "Sort by"
 }

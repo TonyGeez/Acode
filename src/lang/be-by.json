@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Водгук павінен змяшчаць не больш за {max} сімвалаў.",
 	"plugin-review:error-downvote-comment": "Раскажыце распрацоўшчыку, што можна палепшыць.",
 	"plugin-review:error-empty": "Дадайце каментарый або выберыце «Падабаецца».",
-	"plugin-review:unrated": "Без ацэнкі"
+	"plugin-review:unrated": "Без ацэнкі",
+	"sort by": "Sort by"
 }

@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Отзыв должен содержать не более {max} символов.",
 	"plugin-review:error-downvote-comment": "Расскажите разработчику, что можно улучшить.",
 	"plugin-review:error-empty": "Добавьте комментарий или выберите «Нравится».",
-	"plugin-review:unrated": "Нет оценок"
+	"plugin-review:unrated": "Нет оценок",
+	"sort by": "Sort by"
 }

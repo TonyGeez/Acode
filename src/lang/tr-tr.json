@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Değerlendirme en fazla {max} karakter olmalıdır.",
 	"plugin-review:error-downvote-comment": "Geliştiriciye nelerin iyileştirilebileceğini söyleyin.",
 	"plugin-review:error-empty": "Yorum ekleyin veya Beğendim’i seçin.",
-	"plugin-review:unrated": "Değerlendirilmedi"
+	"plugin-review:unrated": "Değerlendirilmedi",
+	"sort by": "Sort by"
 }

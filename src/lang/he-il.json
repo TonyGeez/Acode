@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "הביקורת צריכה להכיל עד {max} תווים.",
 	"plugin-review:error-downvote-comment": "ספר למפתח מה אפשר לשפר.",
 	"plugin-review:error-empty": "הוסף תגובה או בחר באהבתי.",
-	"plugin-review:unrated": "ללא דירוג"
+	"plugin-review:unrated": "ללא דירוג",
+	"sort by": "Sort by"
 }

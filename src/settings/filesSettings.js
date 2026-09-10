@@ -1,5 +1,6 @@
 import settingsPage from "components/settingsPage";
 import appSettings from "lib/settings";
+import helpers from "utils/helpers";
 
 export default function filesSettings() {
 	const title = strings.settings;
@@ -7,9 +8,16 @@ export default function filesSettings() {
 
 	const items = [
 		{
-			key: "sortByName",
-			text: strings["sort by name"],
-			checkbox: values.sortByName,
+			key: "sortBy",
+			text: strings["sort by"],
+			value: helpers.resolveSortBy(values),
+			valueText: getSortByText,
+			select: [
+				["name", strings["sort by name"]],
+				["modified", strings["last modified"]],
+				["size", strings.size],
+				["none", strings.none],
+			],
 		},
 		{
 			key: "showHiddenFiles",
@@ -37,5 +45,23 @@ export default function filesSettings() {
 	function callback(key, value) {
 		appSettings.value.fileBrowser[key] = value;
 		appSettings.update();
+	}
+}
+
+/**
+ * Shows the sort mode of the file browser in a readable form
+ * @param {'name'|'modified'|'size'|'none'} value
+ * @returns {string}
+ */
+function getSortByText(value) {
+	switch (helpers.resolveSortBy({ sortBy: value })) {
+		case "modified":
+			return strings["last modified"];
+		case "size":
+			return strings.size;
+		case "none":
+			return strings.none;
+		default:
+			return strings["sort by name"];
 	}
 }

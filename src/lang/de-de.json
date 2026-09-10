@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Die Bewertung darf höchstens {max} Zeichen lang sein.",
 	"plugin-review:error-downvote-comment": "Sage dem Entwickler, was verbessert werden könnte.",
 	"plugin-review:error-empty": "Füge einen Kommentar hinzu oder wähle „Gefällt mir“.",
-	"plugin-review:unrated": "Nicht bewertet"
+	"plugin-review:unrated": "Nicht bewertet",
+	"sort by": "Sort by"
 }

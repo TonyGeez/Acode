@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "A avaliação deve ter no máximo {max} caracteres.",
 	"plugin-review:error-downvote-comment": "Diga ao desenvolvedor o que pode ser melhorado.",
 	"plugin-review:error-empty": "Adicione um comentário ou escolha Gostei.",
-	"plugin-review:unrated": "Sem avaliação"
+	"plugin-review:unrated": "Sem avaliação",
+	"sort by": "Sort by"
 }

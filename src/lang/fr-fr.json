@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "L’avis doit contenir au maximum {max} caractères.",
 	"plugin-review:error-downvote-comment": "Indiquez au développeur ce qui pourrait être amélioré.",
 	"plugin-review:error-empty": "Ajoutez un commentaire ou choisissez J’aime.",
-	"plugin-review:unrated": "Non évalué"
+	"plugin-review:unrated": "Non évalué",
+	"sort by": "Sort by"
 }

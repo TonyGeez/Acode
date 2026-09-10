@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "A megjegyzés szövege legfeljebb {max} karakter lehet.",
 	"plugin-review:error-downvote-comment": "Írja meg a fejlesztőknek, hogy min lehetne javítani.",
 	"plugin-review:error-empty": "Adjon hozzá megjegyzést vagy válassza a „Tetszik” lehetőséget.",
-	"plugin-review:unrated": "Még nem értékelte senki"
+	"plugin-review:unrated": "Még nem értékelte senki",
+	"sort by": "Sort by"
 }

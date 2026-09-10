@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "La recensione deve contenere al massimo {max} caratteri.",
 	"plugin-review:error-downvote-comment": "Spiega allo sviluppatore cosa potrebbe essere migliorato.",
 	"plugin-review:error-empty": "Aggiungi un commento o scegli Mi piace.",
-	"plugin-review:unrated": "Non valutato"
+	"plugin-review:unrated": "Non valutato",
+	"sort by": "Sort by"
 }

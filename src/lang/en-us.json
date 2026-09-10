@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Review must be {max} characters or less.",
 	"plugin-review:error-downvote-comment": "Tell the developer what could be improved.",
 	"plugin-review:error-empty": "Add a comment or choose thumbs up.",
-	"plugin-review:unrated": "Unrated"
+	"plugin-review:unrated": "Unrated",
+	"sort by": "Sort by"
 }

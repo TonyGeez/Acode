@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Opinia może mieć maksymalnie {max} znaków.",
 	"plugin-review:error-downvote-comment": "Powiedz deweloperowi, co można poprawić.",
 	"plugin-review:error-empty": "Dodaj komentarz lub wybierz „Lubię”.",
-	"plugin-review:unrated": "Bez oceny"
+	"plugin-review:unrated": "Bez oceny",
+	"sort by": "Sort by"
 }

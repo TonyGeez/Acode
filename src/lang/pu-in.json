@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "ਸਮੀਖਿਆ {max} ਅੱਖਰਾਂ ਜਾਂ ਇਸ ਤੋਂ ਘੱਟ ਦੀ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ।",
 	"plugin-review:error-downvote-comment": "ਡਿਵੈਲਪਰ ਨੂੰ ਦੱਸੋ ਕਿ ਕੀ ਸੁਧਾਰਿਆ ਜਾ ਸਕਦਾ ਹੈ।",
 	"plugin-review:error-empty": "ਟਿੱਪਣੀ ਸ਼ਾਮਲ ਕਰੋ ਜਾਂ ਪਸੰਦ ਚੁਣੋ।",
-	"plugin-review:unrated": "ਹਾਲੇ ਮੁਲਾਂਕਣ ਨਹੀਂ"
+	"plugin-review:unrated": "ਹਾਲੇ ਮੁਲਾਂਕਣ ਨਹੀਂ",
+	"sort by": "Sort by"
 }

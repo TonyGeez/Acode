@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "评价不能超过 {max} 个字符。",
 	"plugin-review:error-downvote-comment": "告诉开发者哪些地方可以改进。",
 	"plugin-review:error-empty": "添加评论或选择“赞”。",
-	"plugin-review:unrated": "暂无评分"
+	"plugin-review:unrated": "暂无评分",
+	"sort by": "Sort by"
 }

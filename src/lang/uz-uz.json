@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Sharh {max} ta yoki undan kam belgidan iborat bo‘lishi kerak.",
 	"plugin-review:error-downvote-comment": "Dasturchiga nimani yaxshilash mumkinligini ayting.",
 	"plugin-review:error-empty": "Izoh qo‘shing yoki “Yoqdi”ni tanlang.",
-	"plugin-review:unrated": "Baholanmagan"
+	"plugin-review:unrated": "Baholanmagan",
+	"sort by": "Sort by"
 }

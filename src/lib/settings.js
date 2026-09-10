@@ -11,6 +11,7 @@ import { isDeviceDarkTheme } from "./systemConfiguration";
 /**
  * @typedef {object} fileBrowserSettings
  * @property {string} showHiddenFiles
+ * @property {'name'|'modified'|'size'|'none'} sortBy
  * @property {string} sortByName
  */
 
@@ -42,6 +43,7 @@ class Settings {
 	};
 	#fileBrowserSettings = {
 		showHiddenFiles: false,
+		sortBy: "name",
 		sortByName: true,
 		listFiles: true,
 	};

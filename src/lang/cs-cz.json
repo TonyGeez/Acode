@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Recenze může mít nejvýše {max} znaků.",
 	"plugin-review:error-downvote-comment": "Sdělte vývojáři, co by se dalo zlepšit.",
 	"plugin-review:error-empty": "Přidejte komentář nebo zvolte Líbí se mi.",
-	"plugin-review:unrated": "Nehodnoceno"
+	"plugin-review:unrated": "Nehodnoceno",
+	"sort by": "Sort by"
 }

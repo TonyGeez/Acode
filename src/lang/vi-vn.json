@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Đánh giá phải có tối đa {max} ký tự.",
 	"plugin-review:error-downvote-comment": "Hãy cho nhà phát triển biết điều gì có thể được cải thiện.",
 	"plugin-review:error-empty": "Thêm bình luận hoặc chọn Thích.",
-	"plugin-review:unrated": "Chưa đánh giá"
+	"plugin-review:unrated": "Chưa đánh giá",
+	"sort by": "Sort by"
 }

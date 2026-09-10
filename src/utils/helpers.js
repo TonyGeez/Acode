@@ -11,6 +11,23 @@ import path from "./Path";
 import Uri from "./Uri";
 import Url from "./Url";
 
+/** Valid values for the file browser "sort by" preference */
+export const SORT_MODES = ["name", "modified", "size", "none"];
+
+/**
+ * Compares two entries by name in a case insensitive way
+ * @param {FileEntry} a
+ * @param {FileEntry} b
+ * @returns {number}
+ */
+function compareByName(a, b) {
+	const nameA = `${a?.name ?? ""}`.toLowerCase();
+	const nameB = `${b?.name ?? ""}`.toLowerCase();
+	if (nameA < nameB) return -1;
+	if (nameA > nameB) return 1;
+	return 0;
+}
+
 /**
  * Gets programming language name according to filename
  * @param {String} filename
@@ -101,7 +118,7 @@ export default {
 	sortDir(list, fileBrowser, mode = "both") {
 		const dir = [];
 		const file = [];
-		const sortByName = fileBrowser.sortByName;
+		const sortBy = this.resolveSortBy(fileBrowser);
 		const showHiddenFile = fileBrowser.showHiddenFiles;
 
 		list.forEach((item) => {
@@ -132,16 +149,103 @@ export default {
 			}
 		});
 
-		if (sortByName) {
+		if (sortBy !== "none") {
+			const compare = this.getSortComparator(sortBy);
 			dir.sort(compare);
 			file.sort(compare);
 		}
 
 		return dir.concat(file);
-
-		function compare(a, b) {
-			return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+	},
+	/**
+	 * Resolves the sort mode from file browser settings.
+	 * The legacy `sortByName` flag is still honored for backward compatibility.
+	 * @param {object} [fileBrowser] file browser settings
+	 * @returns {'name'|'modified'|'size'|'none'}
+	 */
+	resolveSortBy(fileBrowser = {}) {
+		const { sortBy } = fileBrowser;
+		if (SORT_MODES.includes(sortBy)) return sortBy;
+		return fileBrowser.sortByName === false ? "none" : "name";
+	},
+	/**
+	 * Builds the comparator for given sort mode.
+	 * Directories and files are always sorted separately, newest/largest first.
+	 * @param {'name'|'modified'|'size'|'none'} sortBy
+	 * @returns {(a: FileEntry, b: FileEntry) => number}
+	 */
+	getSortComparator(sortBy) {
+		if (sortBy === "modified") {
+			return (a, b) =>
+				(this.getStatMtime(b) ?? 0) - (this.getStatMtime(a) ?? 0) ||
+				compareByName(a, b);
 		}
+
+		if (sortBy === "size") {
+			return (a, b) =>
+				(this.getEntrySize(b) ?? 0) - (this.getEntrySize(a) ?? 0) ||
+				compareByName(a, b);
+		}
+
+		return compareByName;
+	},
+	/**
+	 * Reads the size of a file entry or stat object
+	 * @param {FileEntry|Stat} entry
+	 * @returns {number|null}
+	 */
+	getEntrySize(entry) {
+		const size = Number(entry?.size ?? entry?.length);
+		return Number.isFinite(size) ? size : null;
+	},
+	/**
+	 * Checks whether an entry already carries the metadata required by a sort mode
+	 * @param {FileEntry} item
+	 * @param {'name'|'modified'|'size'|'none'} sortBy
+	 * @returns {boolean}
+	 */
+	hasSortMetadata(item, sortBy) {
+		if (item.statLoaded) return true;
+		if (sortBy === "size") return this.getEntrySize(item) !== null;
+		return this.getStatMtime(item) !== null;
+	},
+	/**
+	 * Loads the missing stat metadata (size and last modified date) needed by the
+	 * "modified" and "size" sort modes. Entries that already carry the metadata,
+	 * like ftp/sftp listings, are left untouched and per entry failures are
+	 * ignored so that a single unreadable entry never blocks a directory listing.
+	 * @param {FileEntry[]} list
+	 * @param {object} fileBrowser file browser settings
+	 * @param {number} [concurrency]
+	 * @returns {Promise<FileEntry[]>}
+	 */
+	async loadSortMetadata(list, fileBrowser, concurrency = 8) {
+		const sortBy = this.resolveSortBy(fileBrowser);
+		if (sortBy !== "modified" && sortBy !== "size") return list;
+
+		const pending = list.filter((item) => !this.hasSortMetadata(item, sortBy));
+		if (!pending.length) return list;
+
+		let index = 0;
+		const worker = async () => {
+			while (index < pending.length) {
+				const item = pending[index++];
+				try {
+					const stat = await fsOperation(item.url).stat();
+					item.size = this.getEntrySize(stat) ?? this.getEntrySize(item) ?? 0;
+					item.modifiedDate = this.getStatMtime(stat) ?? item.modifiedDate;
+				} catch (error) {
+					// entry stays as is and falls back to name comparison
+				}
+				item.statLoaded = true;
+			}
+		};
+
+		await Promise.all(
+			Array.from({ length: Math.min(concurrency, pending.length) }, worker),
+		);
+
+		return list;
 	},
 	/**
 	 * Gets error message from error object

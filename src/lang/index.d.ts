@@ -878,6 +878,7 @@ declare type LangStrings = {
   "plugin-review:error-downvote-comment": string;
   "plugin-review:error-empty": string;
   "plugin-review:unrated": string;
+  "sort by": string;
 };
 
 declare var strings: LangStrings;

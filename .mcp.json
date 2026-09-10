@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ],
+      "env": {}
+    },
+    "kortex": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/tony/kortex3333/src/mcp/server.js"
+      ],
+      "env": {
+        "PG_HOST": "localhost",
+        "PG_PORT": "5432",
+        "PG_USER": "postgres",
+        "PG_PASSWORD": "12121212",
+        "PG_DATABASE": "kortexdevcon22"
+      }
+    },
+    "fs": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/tony/mcp/fs/index.js"
+      ],
+      "env": {}
+    },
+    "far": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/tony/mcp/find-and-replace/server.js"
+      ],
+      "env": {}
+    }
+  }
+}

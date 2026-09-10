@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "သုံးသပ်ချက်သည် စာလုံးရေ {max} လုံး သို့မဟုတ် ထိုထက်နည်းရမည်။",
 	"plugin-review:error-downvote-comment": "မည်သည့်အရာကို ပိုကောင်းအောင်လုပ်နိုင်ကြောင်း developer ကို ပြောပါ။",
 	"plugin-review:error-empty": "မှတ်ချက်ထည့်ပါ သို့မဟုတ် ကြိုက်သည်ကို ရွေးပါ။",
-	"plugin-review:unrated": "အဆင့်မသတ်မှတ်ရသေးပါ"
+	"plugin-review:unrated": "အဆင့်မသတ်မှတ်ရသေးပါ",
+	"sort by": "Sort by"
 }

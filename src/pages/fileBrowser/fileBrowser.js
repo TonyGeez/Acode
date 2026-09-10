@@ -27,7 +27,7 @@ import mustache from "mustache";
 import filesSettings from "settings/filesSettings";
 import URLParse from "url-parse";
 import copyEntry from "utils/copyEntry";
-import helpers from "utils/helpers";
+import helpers, { SORT_MODES } from "utils/helpers";
 import Url from "utils/Url";
 import _addMenu from "./add-menu.hbs";
 import _addMenuHome from "./add-menu-home.hbs";
@@ -95,6 +95,16 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 		);
 		const $addMenuToggler = (
 			<span className="icon add" data-action="toggle-add-menu"></span>
+		);
+		const $filterMenuToggler = (
+			<span
+				className="icon funnel"
+				data-action="toggle-filter-menu"
+				title={strings["sort by"]}
+				aria-label={strings["sort by"]}
+				role="button"
+				tabindex="0"
+			></span>
 		);
 		const $selectionModeToggler = (
 			<span
@@ -167,6 +177,36 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 			},
 			...((menuOption.toggler = $addMenuToggler) && menuOption),
 		});
+		menuOption.toggler = $filterMenuToggler;
+		const $filterMenu = Contextmenu({
+			innerHTML: () => {
+				const { fileBrowser } = appSettings.value;
+				const sortBy = helpers.resolveSortBy(fileBrowser);
+				/**
+				 * @param {'name'|'modified'|'size'|'none'} value
+				 * @param {string} text
+				 */
+				const sortOption = (value, text) => `
+        <li action="sort-${value}">
+          <span class="text">${text}</span>
+          ${sortBy === value ? '<span class="icon check"></span>' : ""}
+        </li>`;
+
+				return `
+        <li class="disabled"><span class="text">${strings["sort by"].capitalize(0)}</span></li>
+        ${sortOption("name", strings["sort by name"])}
+        ${sortOption("modified", strings["last modified"])}
+        ${sortOption("size", strings.size)}
+        ${sortOption("none", strings.none)}
+        <hr>
+        <li action="toggle-hidden-files">
+          <span class="text">${strings["show hidden files"]}</span>
+          ${fileBrowser.showHiddenFiles ? '<span class="icon check"></span>' : ""}
+        </li>
+        `;
+			},
+			...menuOption,
+		});
 
 		$selectionMenuToggler.style.display = "none";
 		$pasteToggler.style.display = "none";
@@ -194,6 +234,7 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 		$page.header.append(
 			$pasteToggler,
 			$selectionModeToggler,
+			$filterMenuToggler,
 			$addMenuToggler,
 			$menuToggler,
 			$selectionMenuToggler,
@@ -271,6 +312,31 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 				toast(strings.success);
 				return;
 			}
+		};
+
+		$filterMenu.onclick = async function (e) {
+			const action = e.target.getAttribute("action");
+			if (!action) return;
+
+			const { fileBrowser } = appSettings.value;
+			let changed = false;
+
+			if (action.startsWith("sort-")) {
+				const sortBy = action.slice("sort-".length);
+				if (SORT_MODES.includes(sortBy)) {
+					fileBrowser.sortBy = sortBy;
+					changed = true;
+				}
+			} else if (action === "toggle-hidden-files") {
+				fileBrowser.showHiddenFiles = !fileBrowser.showHiddenFiles;
+				changed = true;
+			}
+
+			$filterMenu.hide();
+			if (!changed) return;
+
+			await appSettings.update();
+			reload();
 		};
 
 		$addMenu.onclick = async (e) => {
@@ -906,6 +972,7 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 					});
 
 				$addMenuToggler.style.display = "none";
+				$filterMenuToggler.style.display = "none";
 				$menuToggler.style.display = "none";
 				$selectDocument.style.display = "none";
 				$selectionMenuToggler.style.display = "";
@@ -934,6 +1001,7 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 				selectedItems.clear();
 
 				$addMenuToggler.style.display = "";
+				$filterMenuToggler.style.display = "";
 				$menuToggler.style.display = "";
 				$selectDocument.style.display = "";
 				$selectionMenuToggler.style.display = "none";
@@ -1502,6 +1570,12 @@ function FileBrowserInclude(mode, info, doesOpenLast = true) {
 						} else {
 							console.error(err);
 						}
+					}
+
+					// size and last modified date are required to sort by size
+					// or by newest, they are loaded while the loader is visible
+					if (progress[id]) {
+						await helpers.loadSortMetadata(list, fileBrowser);
 					}
 
 					error = !progress[id];

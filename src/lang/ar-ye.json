@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "يجب ألا يتجاوز التقييم {max} حرفًا.",
 	"plugin-review:error-downvote-comment": "أخبر المطوّر بما يمكن تحسينه.",
 	"plugin-review:error-empty": "أضف تعليقًا أو اختر «أعجبني».",
-	"plugin-review:unrated": "غير مقيّم"
+	"plugin-review:unrated": "غير مقيّم",
+	"sort by": "Sort by"
 }

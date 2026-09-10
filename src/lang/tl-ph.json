@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Dapat {max} character o mas kaunti ang review.",
 	"plugin-review:error-downvote-comment": "Sabihin sa developer kung ano ang maaaring mapabuti.",
 	"plugin-review:error-empty": "Magdagdag ng komento o piliin ang Gusto.",
-	"plugin-review:unrated": "Walang rating"
+	"plugin-review:unrated": "Walang rating",
+	"sort by": "Sort by"
 }

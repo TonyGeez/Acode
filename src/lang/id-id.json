@@ -874,5 +874,6 @@
 	"plugin-review:error-max-length": "Ulasan harus terdiri dari {max} karakter atau kurang.",
 	"plugin-review:error-downvote-comment": "Beri tahu developer apa yang dapat ditingkatkan.",
 	"plugin-review:error-empty": "Tambahkan komentar atau pilih Suka.",
-	"plugin-review:unrated": "Belum dinilai"
+	"plugin-review:unrated": "Belum dinilai",
+	"sort by": "Sort by"
 }
