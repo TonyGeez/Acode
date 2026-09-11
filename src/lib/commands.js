@@ -45,7 +45,7 @@ function resolveReferenceFile(referenceFile) {
 		return getFile(referenceFile, "id") || activeFile;
 	}
 	if (referenceFile?.id) {
-		return getFile(referenceFile.id, "id") || referenceFile;
+		return getFile(referenceFile.id, "id") || null;
 	}
 
 	return referenceFile;
@@ -70,7 +70,7 @@ function resolveExactFile(referenceFile) {
 		return getFile(referenceFile, "id") || null;
 	}
 	if (referenceFile?.id) {
-		return getFile(referenceFile.id, "id") || referenceFile;
+		return getFile(referenceFile.id, "id") || null;
 	}
 
 	return referenceFile;
