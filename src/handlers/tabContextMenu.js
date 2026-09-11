@@ -64,6 +64,14 @@ export default function openTabContextMenu(file) {
 		document.removeEventListener("click", suppressSyntheticClick, true);
 	};
 
+	// Make sure the document-level suppressor is always detached, even if the
+	// menu is destroyed without ever firing `onhide`.
+	const originalDestroy = menu.destroy;
+	menu.destroy = () => {
+		removeSuppressor();
+		originalDestroy();
+	};
+
 	document.addEventListener("click", suppressSyntheticClick, true);
 	menu.onhide = removeSuppressor;
 
@@ -80,6 +88,7 @@ export default function openTabContextMenu(file) {
 	});
 
 	menu.show();
+	repositionMenu(menu, file.tab);
 	return menu;
 }
 
@@ -178,7 +187,9 @@ function getMenuItemsHtml() {
 }
 
 /**
- * Position the menu next to the tab, flipping when there is not enough room.
+ * Initial position for the menu next to the tab, based on size estimates so
+ * the first paint is already close to the final place. `repositionMenu` then
+ * corrects it using the real, measured size.
  * @param {HTMLElement} $tab
  * @returns {object}
  */
@@ -201,4 +212,51 @@ function positionMenu($tab) {
 	}
 
 	return style;
+}
+
+/**
+ * Correct the menu position using its measured size after it has been shown,
+ * flipping/clamping so it always stays fully inside the viewport. `offsetWidth`
+ * and `offsetHeight` are used instead of `getBoundingClientRect()` so the
+ * measurement is unaffected by the menu's open/close transform animation.
+ * @param {HTMLElement} menu
+ * @param {HTMLElement} $tab
+ */
+function repositionMenu(menu, $tab) {
+	if (!menu.isConnected) return;
+
+	const menuWidth = menu.offsetWidth;
+	const menuHeight = menu.offsetHeight;
+	if (!menuWidth || !menuHeight) return;
+
+	const tabRect = $tab.getBoundingClientRect();
+	const viewportWidth = innerWidth;
+	const viewportHeight = innerHeight;
+
+	const maxLeft = Math.max(
+		EDGE_MARGIN,
+		viewportWidth - menuWidth - EDGE_MARGIN,
+	);
+	let left = tabRect.left;
+	if (left + menuWidth > viewportWidth - EDGE_MARGIN) {
+		left = tabRect.right - menuWidth;
+	}
+	left = Math.min(Math.max(EDGE_MARGIN, left), maxLeft);
+	menu.style.left = `${left}px`;
+	menu.style.right = "auto";
+
+	let transformOrigin = "top center";
+	const maxTop = Math.max(
+		EDGE_MARGIN,
+		viewportHeight - menuHeight - EDGE_MARGIN,
+	);
+	let top = tabRect.bottom + GAP;
+	if (top + menuHeight > viewportHeight - EDGE_MARGIN) {
+		top = tabRect.top - menuHeight - GAP;
+		transformOrigin = "bottom center";
+	}
+	top = Math.min(Math.max(EDGE_MARGIN, top), maxTop);
+	menu.style.top = `${top}px`;
+	menu.style.bottom = "auto";
+	menu.style.transformOrigin = transformOrigin;
 }

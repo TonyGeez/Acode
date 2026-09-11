@@ -118,30 +118,63 @@ export default function Contextmenu(content, options) {
 		show();
 	}
 
+	/**
+	 * Whether a direct child of the menu is an enabled, actionable row.
+	 *
+	 * Separators (`<hr>`) and rows marked `disabled`/`separator` are excluded,
+	 * so keyboard users can neither focus them nor trigger actions the menu
+	 * presents as unavailable. Without this, Enter/Space would dispatch a click
+	 * on a disabled row, and a programmatic click bypasses the CSS
+	 * `pointer-events: none` that normally blocks it.
+	 * @param {Element|null|undefined} $item
+	 * @returns {boolean}
+	 */
+	function isActionableItem($item) {
+		if (!$item || $item.tagName === "HR") return false;
+		if ($item.classList.contains("disabled")) return false;
+		if ($item.classList.contains("separator")) return false;
+		return true;
+	}
+
+	/**
+	 * All enabled, actionable rows in the menu, in visual order.
+	 * @returns {HTMLElement[]}
+	 */
+	function getActionableItems() {
+		if ($el.classList.contains("disabled")) return [];
+		return [...$el.children].filter(isActionableItem);
+	}
+
 	function addTabindex() {
 		/**@type {Array<HTMLLIElement>} */
 		const children = [...$el.children];
-		for (let $el of children) $el.tabIndex = "0";
+		for (let $child of children) {
+			if (isActionableItem($child)) {
+				$child.tabIndex = "0";
+			} else {
+				$child.removeAttribute("tabindex");
+			}
+		}
 	}
 
 	/**
-	 * Returns the currently focused menu item, or null if focus is
-	 * elsewhere (e.g. nothing focused yet, or focus left the menu).
+	 * Returns the currently focused actionable menu row, or null if focus is
+	 * on a disabled row, a nested control, or outside the menu.
 	 * @returns {HTMLElement|null}
 	 */
 	function getFocusedItem() {
-		const items = [...$el.children];
-		const index = items.indexOf(document.activeElement);
-		return index === -1 ? null : document.activeElement;
+		const $active = document.activeElement;
+		if (!$active || $active.parentElement !== $el) return null;
+		return isActionableItem($active) ? $active : null;
 	}
 
 	/**
-	 * Moves focus to the next/previous menu item, wrapping around at the
-	 * ends. `direction` is +1 for next, -1 for previous.
+	 * Moves focus to the next/previous actionable menu row, wrapping around at
+	 * the ends. `direction` is +1 for next, -1 for previous.
 	 * @param {number} direction
 	 */
 	function moveFocus(direction) {
-		const items = [...$el.children];
+		const items = getActionableItems();
 		if (!items.length) return;
 
 		const currentIndex = items.indexOf(document.activeElement);
@@ -155,22 +188,26 @@ export default function Contextmenu(content, options) {
 	}
 
 	/**
-	 * Turns a keyboard activation (Enter/Space on a focused menu item) into
-	 * a real click event, so both selection patterns this component
-	 * supports handle it identically to a pointer click:
+	 * Turns a keyboard activation (Enter/Space on a focused menu row) into a
+	 * real click event, so both selection patterns this component supports
+	 * handle it identically to a pointer click:
 	 *  - the `items`/`onselect` array form, whose routing lives in the
 	 *    `onclick` handler above
-	 *  - a consumer's own click listener attached directly to $el, as used
-	 *    by menus built with the `innerHTML` option
+	 *  - a consumer's own click listener attached directly to $el, as used by
+	 *    menus built with the `innerHTML` option
 	 *
-	 * The dispatched event is marked with `keyboardActivated` so consumers
-	 * that filter out synthetic `detail === 0` ghost clicks (e.g. to ignore
-	 * the click that follows a touch-based long press) can still recognize
-	 * and allow this one through.
-	 * @param {HTMLElement} $item
+	 * The dispatched event is marked with `keyboardActivated` so consumers that
+	 * filter out synthetic `detail === 0` ghost clicks (e.g. to ignore the click
+	 * that follows a touch-based long press) can still recognize and allow this
+	 * one through.
+	 *
+	 * Disabled rows and separators are ignored, so they can never be activated
+	 * from the keyboard.
+	 * @param {HTMLElement|null} $item
 	 */
 	function activateItem($item) {
-		if (!$item || !$el.contains($item)) return;
+		if (!$item || $item.parentElement !== $el || !isActionableItem($item))
+			return;
 		const clickEvent = new MouseEvent("click", {
 			bubbles: true,
 			cancelable: true,
@@ -183,13 +220,44 @@ export default function Contextmenu(content, options) {
 	}
 
 	/**
-	 * Keyboard support for the menu: Enter/Space activates the focused
-	 * item, Up/Down arrows move focus between items (wrapping at the
-	 * ends), Home/End jump to the first/last item, and Escape closes the
-	 * menu and returns focus to the toggler.
+	 * Whether a keydown event should be handled by the menu's keyboard
+	 * navigation. Keys originating from interactive descendants (e.g. the file
+	 * menu's read-only checkbox) are left alone so those controls keep their
+	 * native Space/Enter behavior.
+	 * @param {KeyboardEvent} e
+	 * @returns {boolean}
+	 */
+	function isMenuKeyEvent(e) {
+		const $target = e.target;
+		if ($target === $el) return true;
+		return (
+			$target instanceof Element &&
+			$target.parentElement === $el &&
+			isActionableItem($target)
+		);
+	}
+
+	/**
+	 * Keyboard support for the menu: Enter/Space activates the focused row,
+	 * Up/Down arrows move focus between actionable rows (wrapping at the ends),
+	 * Home/End jump to the first/last actionable row, and Escape closes the menu
+	 * and returns focus to the toggler.
+	 *
+	 * Events originating from nested interactive controls are ignored (except
+	 * Escape), so those controls are never prevented from handling their own
+	 * keys.
 	 * @param {KeyboardEvent} e
 	 */
 	function onMenuKeydown(e) {
+		if (e.key === "Escape" || e.key === "Esc") {
+			e.preventDefault();
+			hide();
+			options.toggler?.focus?.();
+			return;
+		}
+
+		if (!isMenuKeyEvent(e)) return;
+
 		switch (e.key) {
 			case "Enter":
 			case " ":
@@ -209,18 +277,13 @@ export default function Contextmenu(content, options) {
 				break;
 			case "Home":
 				e.preventDefault();
-				$el.firstElementChild?.focus();
+				getActionableItems()[0]?.focus();
 				break;
-			case "End":
-				e.preventDefault();
-				$el.lastElementChild?.focus();
+			case "End": {
+				const items = getActionableItems();
+				items[items.length - 1]?.focus();
 				break;
-			case "Escape":
-			case "Esc":
-				e.preventDefault();
-				hide();
-				options.toggler?.focus?.();
-				break;
+			}
 		}
 	}
 
