@@ -205,11 +205,11 @@ export default function Contextmenu(content, options) {
 	 * from the keyboard.
 	 * @param {HTMLElement|null} $item
 	 */
-  
-  function activateItem($item) {
-    if ($el.classList.contains("disabled")) return;
-    if (!$item || $item.parentElement !== $el || !isActionableItem($item))
-		return;
+
+	function activateItem($item) {
+		if ($el.classList.contains("disabled")) return;
+		if (!$item || $item.parentElement !== $el || !isActionableItem($item))
+			return;
 		const clickEvent = new MouseEvent("click", {
 			bubbles: true,
 			cancelable: true,
